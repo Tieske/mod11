@@ -1,0 +1,7 @@
+project='mod11'
+title='Module11 checksum generator and verificator'
+description='Module to generate modulo11 checksums and to verify and search for them'
+format='discount'
+file='./mod11.lua'
+dir='doc'
+readme='readme.md'
