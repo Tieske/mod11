@@ -75,7 +75,6 @@ local ct = { [10] = 1, [11] = 0 }  -- 10 and 11 are special cases
 local getmodulo = function(str, verify)
   local total = 0
   local multiplpos = 1
-  local multiplier
   local result = ""
   for n = #str,1,-1 do    -- calculate right to left
     -- calculate value and add to total
@@ -120,7 +119,7 @@ function M:new(verify, allowed)
         getallowed = function(self)
           self = getmetatable(self)
           local r = ""
-          for k,v in pairs(self.allowed) do
+          for k in pairs(self.allowed) do
             r = r .. k
           end
           return r
@@ -131,19 +130,22 @@ function M:new(verify, allowed)
           if not ok then
             error(err, 2)
           end
+          inp = clean(inp)
+          if #inp == 0 then error("Invalid input, empty string (no digits)", 2) end
           return getmodulo(clean(inp), self.verify)
         end,
+        -- true if ok, false, if failed, nil + error if its bad input
         check = function(self, inp)
           self = getmetatable(self)
           local ok, err = checkvalid(inp, self.allowed)
           if not ok then
-            error(err, 2)
+            return nil, err
           end
           inp = clean(inp)
-          if math.fmod(#inp,8) == 1 then -- always data + check, so minimum 2 characters
-            error("The input has an invalid length", 2)
+          if (math.fmod(#inp,9) == 1) or (#inp == 0) then -- always data + check, so minimum 2 characters
+            return nil, "The input has an invalid length"
           end
-          local chk = inp:sub(-1,-1)
+          local chk = ""--inp:sub(-1,-1)
           while #inp - #chk * 8 >= 0 do
             chk = inp:sub(-1,-1) .. chk
             inp = inp:sub(1,-2)
@@ -184,9 +186,9 @@ function M:new(verify, allowed)
                     -- it is a valid character
                     if tonumber(c) then
                       -- it's a digit so we must add it
-                      size = size + 1
-                      epos = epos + 1
+                      size = size + 1                      
                     end
+                    epos = epos + 1
                   end
                   if (not self.allowed[c]) or (epos > #text) then
                     -- it is an invalid character, or the end of the text so the current sequence ends here
@@ -196,8 +198,8 @@ function M:new(verify, allowed)
                       break
                     end
                     local inp = text:sub(spos, epos-1)
-                    local succes, ok = pcall(soself.check, soself, inp)
-                    if success and ok then
+                    local succes, ok = pcall(oself.check, oself, inp)
+                    if succes and ok then
                       -- found one!
                       local s, e = spos, epos-1
                       spos = epos
@@ -216,8 +218,5 @@ function M:new(verify, allowed)
       }
       })
 end
-
-
---print(getmodulo("19720526",checkverify("28946735")))
 
 return setmetatable(M, { __call = function(self, ...) return M.new(...) end })
