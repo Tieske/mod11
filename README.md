@@ -34,4 +34,13 @@ Searching
 The module contains an iterator function that can scan text for valid numbers. Sample use includes checking incoming emails for valid supportcase numbers, or scanning bank transaction details for valid invoice numbers or customerids.
 For an example see the [sample.lua](https://github.com/Tieske/mod11/blob/master/samples/sample.lua) file. The sample contains 2 series with their own verifynumber sequence, where each iterator will only find its own numbers.
 
+Tests
+=====
+Testsuite is included in the `spec` folder and can be executed using [busted](http://olivinelabs.com/busted).
+
+License
+=======
+[MIT](https://github.com/Tieske/mod11/blob/master/LICENSE)
+
+
 
