@@ -29,7 +29,7 @@ source = {
 build = {
    type = "builtin",
    modules = {
-      date = "mod11.lua"
+      mod11 = "src/mod11.lua"
    }
 }
 

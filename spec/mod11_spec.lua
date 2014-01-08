@@ -23,14 +23,18 @@ describe("modulo 11 tests", function()
   it("tests 'calc'", function()
     m = mod11("23456789", "-/")
     -- proper checksum for different lengths
-    assert.are_equal("9", m:calc("1"))
-    assert.are_equal("1", m:calc("1972052"))  -- 7 pos (1 check pos)
-    assert.are_equal(m:calc("1972052"), m:calc("1972-05/2"))
-    assert.are_equal("5", m:calc("19720527")) -- 8 pos (1 check pos)
-    assert.are_equal(m:calc("19720527"), m:calc("1972-05/27"))
-    assert.are_equal("91", m:calc("197205278")) -- 9 pos (2 check pos)
-    assert.are_equal("55", m:calc("1972052719720527")) -- 16 pos (2 check pos)
-    assert.are_equal("921", m:calc("19720527197205278")) -- 17 pos (3 check pos)
+    assert.are_equal("19", (m:calc("1")))
+    assert.are_equal("19720521", (m:calc("1972052")))  -- 7 pos (1 check pos)
+    local f1, c1 = m:calc("1972052")
+    local f2, c2 = m:calc("1972-05/2")
+    assert.are_equal(c1, c2)
+    assert.are_equal("197205275", (m:calc("19720527"))) -- 8 pos (1 check pos)
+    local f1, c1 = m:calc("19720527")
+    local f2, c2 = m:calc("1972-05/27")
+    assert.are_equal(c1, c2)
+    assert.are_equal("19720527891", (m:calc("197205278"))) -- 9 pos (2 check pos)
+    assert.are_equal("197205271972052755", (m:calc("1972052719720527"))) -- 16 pos (2 check pos)
+    assert.are_equal("19720527197205278921", (m:calc("19720527197205278"))) -- 17 pos (3 check pos)
     
     -- errors
     -- not a string param
@@ -43,12 +47,36 @@ describe("modulo 11 tests", function()
     assert.has_errors(function() m:calc("") end)
   end)
   
+  it("tests 'split'", function()
+    m = mod11("23456789", "-/")
+    -- validchecksum
+    local nr, full, chk
+    nr = "197205278"
+    full, chk = m:calc(nr)
+    assert.are_same({nr, chk}, {m:split(full)})
+    -- invalid checksum
+    nr = "197205278"
+    chk = "11"
+    full = nr..chk
+    assert.are_same({nr, chk}, {m:split(full)})
+      
+    -- errors
+    -- not a string param
+    assert.has.errors(function() m:split(15) end)
+    -- illegal chars
+    assert.has.errors(function() m:split("1345xyz678") end)
+    -- invalid length
+    assert.has.errors(function() m:split("") end)
+    assert.has.errors(function() m:split("1234567811") end)
+    assert.has.errors(function() m:split("1234567811234567811") end)
+  end)
+
   it("tests 'check'", function()
     m = mod11("23456789", "-/")
     -- validchecksum
-    assert.is_true(m:check("197205278"..m:calc("197205278")))
+    assert.is_true(m:check((m:calc("197205278"))))
     -- invalid checksum
-    assert.is_false(m:check(m:calc("197205278").."-11"))
+    assert.is_false(m:check("197205278-11"))
       
     -- errors
     -- not a string param
@@ -67,18 +95,18 @@ describe("modulo 11 tests", function()
     n = mod11("92345678", "-/")
     local l1,l2,l3
     l1 = {
-      [1] = "197205278"..m:calc("197205278"),
-      [2] = "197205279"..m:calc("197205279"),
-      [3] = "197205280"..m:calc("197205280"),
-      [4] = "197205281"..m:calc("197205281"),
-      [5] = "197205282"..m:calc("197205282"),
+      [1] = m:calc("197205278"),
+      [2] = m:calc("197205279"),
+      [3] = m:calc("197205280"),
+      [4] = m:calc("197205281"),
+      [5] = m:calc("197205282"),
     }
     l2 = {
-      [1] = "197205278"..n:calc("197205278"),
-      [2] = "197205279"..n:calc("197205279"),
-      [3] = "197205280"..n:calc("197205280"),
-      [4] = "197205281"..n:calc("197205281"),
-      [5] = "197205282"..n:calc("197205282"),
+      [1] = n:calc("197205278"),
+      [2] = n:calc("197205279"),
+      [3] = n:calc("197205280"),
+      [4] = n:calc("197205281"),
+      [5] = n:calc("197205282"),
     }
     l3 = {}
     for i, v in ipairs(l1) do
